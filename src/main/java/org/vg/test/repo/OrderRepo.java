@@ -10,5 +10,9 @@ public interface OrderRepo {
 
     Order findById(long id);
 
-    void save(Order order);
+    boolean save(Order order);
+
+    boolean update(Order order);
+
+    boolean delete(Order order);
 }

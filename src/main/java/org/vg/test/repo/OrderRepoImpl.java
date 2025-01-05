@@ -22,7 +22,18 @@ public class OrderRepoImpl implements OrderRepo {
     }
 
     @Override
-    public void save(Order order) {
+    public boolean save(Order order) {
         orders.put(order.getOrderId(), order);
+        return true;
+    }
+
+    @Override
+    public boolean update(Order order) {
+        return false;
+    }
+
+    @Override
+    public boolean delete(Order order) {
+        return false;
     }
 }
