@@ -1,5 +1,6 @@
 package org.vg.test.repo;
 
+import org.vg.test.config.DatabaseConnection;
 import org.vg.test.entity.Order;
 
 import java.sql.*;
@@ -8,16 +9,11 @@ import java.util.List;
 
 public class OrderRepoSql implements OrderRepo {
 
-    private static final String URL = "jdbc:mysql://127.0.0.1:3306/car_box?useSSL=true&characterEncoding=utf8";
-    private static final String USER = "root";
-    private static final String PASSWORD = "1111";
-
-
     @Override
     public List<Order> getAll() {
         String sql = "SELECT ORDER_ID, ORDER_NAME, PRICE FROM car_box.Orders";
         List<Order> orders = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
              Statement statement = connection.createStatement();) {
 
             ResultSet resultSet = statement.executeQuery(sql);
@@ -38,7 +34,7 @@ public class OrderRepoSql implements OrderRepo {
     @Override
     public Order findById(long id) {
         String sql = "SELECT * FROM Orders WHERE ORDER_ID = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);) {
 
             statement.setLong(1, id);
@@ -60,7 +56,7 @@ public class OrderRepoSql implements OrderRepo {
     public boolean save(Order order) {
         String sql = "INSERT INTO Orders (ORDER_NAME, PRICE) VALUES (?, ?)";
 
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);) {
 
             statement.setString(1, order.getOrderName());
@@ -82,7 +78,7 @@ public class OrderRepoSql implements OrderRepo {
             return false;
         }
         String sql = "UPDATE Orders SET ORDER_NAME=?, PRICE=? WHERE ORDER_ID = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);) {
 
             statement.setString(1, order.getOrderName());
@@ -103,7 +99,7 @@ public class OrderRepoSql implements OrderRepo {
             return false;
         }
         String sql = "DELETE FROM Orders WHERE ORDER_ID = ?";
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);) {
 
             statement.setLong(1, order.getOrderId());
