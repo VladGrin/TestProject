@@ -14,21 +14,27 @@ public class DatabaseConnection {
     private String password;
 
     private static DatabaseConnection instance;
-    private final Connection connection;
+    private Connection connection;
 
     private DatabaseConnection() throws SQLException {
         initProperties();
-        connection = DriverManager.getConnection(url, user, password);
     }
 
     public static DatabaseConnection getInstance() throws SQLException {
-        if (instance == null || instance.connection.isClosed()) {
+        if (instance == null) {
             instance = new DatabaseConnection();
         }
         return instance;
     }
 
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(url, user, password);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return connection;
     }
 
@@ -44,26 +50,6 @@ public class DatabaseConnection {
             this.password = property.getProperty("db.mysql.pwd");
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public void initializeDatabase() {
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             Statement statement = connection.createStatement();
-             BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/db.properties"))) {
-
-            StringBuilder sqlBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sqlBuilder.append(line);
-                if (line.endsWith(";")) {
-                    statement.execute(sqlBuilder.toString());
-                    sqlBuilder.setLength(0); // Очищуємо після виконання
-                }
-            }
-        } catch (IOException | RuntimeException | java.sql.SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Не вдалося ініціалізувати базу даних", e);
         }
     }
 }

@@ -27,16 +27,12 @@ public class OrderRepoSqlTest {
 
     @Before
     public void init() {
-        try {
-            DatabaseConnection.getInstance().initializeDatabase();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        DBUtils.initializeDatabase();
     }
 
     @After
     public void clean() {
-
+        DBUtils.deleteResources();
     }
 
     @Test
@@ -74,7 +70,7 @@ public class OrderRepoSqlTest {
         assertEquals(2000, savedOrder.getPrice());
 
         final List<Order> all = orderRepo.getAll();
-        System.out.println("");
+        System.out.println(all);
     }
 
     @Test
