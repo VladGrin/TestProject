@@ -3,8 +3,10 @@ package org.vg.test.repo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.vg.test.config.DatabaseConnection;
 import org.vg.test.entity.Order;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -25,7 +27,11 @@ public class OrderRepoSqlTest {
 
     @Before
     public void init() {
-
+        try {
+            DatabaseConnection.getInstance().initializeDatabase();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @After
@@ -41,15 +47,14 @@ public class OrderRepoSqlTest {
 
         final List<Order> all = orderRepo.getAll();
 
-        assertEquals(3, all.size());
-        assertTrue(all.size() == 3);
+        assertEquals(1, all.size());
+        assertTrue(all.size() == 1);
         assertFalse(all.isEmpty());
-
     }
 
     @Test
     public void findById() {
-        Order expectOrder = new Order(1, "First", 100000);
+        Order expectOrder = new Order(1, "First", 1000);
 
         Order orderRepoById = orderRepo.findById(1);
 
@@ -58,9 +63,18 @@ public class OrderRepoSqlTest {
 
     @Test
     public void save() {
-        assertEquals(3, 2 + 1);
-        assertTrue(5 == 2 + 3);
-        assertFalse(5 == 2 + 2);
+        Order order = new Order();
+        order.setOrderName("Second");
+        order.setPrice(2000);
+
+        Order savedOrder = orderRepo.save(order);
+
+        assertEquals(2, savedOrder.getOrderId());
+        assertEquals("Second", savedOrder.getOrderName());
+        assertEquals(2000, savedOrder.getPrice());
+
+        final List<Order> all = orderRepo.getAll();
+        System.out.println("");
     }
 
     @Test

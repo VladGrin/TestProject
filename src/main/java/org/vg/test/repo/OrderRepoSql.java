@@ -11,7 +11,7 @@ public class OrderRepoSql implements OrderRepo {
 
     @Override
     public List<Order> getAll() {
-        String sql = "SELECT ORDER_ID, ORDER_NAME, PRICE FROM car_box.Orders";
+        String sql = "SELECT ORDER_ID, ORDER_NAME, PRICE FROM Orders";
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              Statement statement = connection.createStatement();) {
@@ -52,20 +52,49 @@ public class OrderRepoSql implements OrderRepo {
         }
     }
 
+//    @Override
+//    public Book createBook(Book book) {
+//        String query = "INSERT INTO Books (title, publishedYear, genre, author_id) VALUES (?, ?, ?, ?)";
+//        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+//             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+//
+//            stmt.setString(1, book.getTitle());
+//            stmt.setInt(2, book.getPublishedYear());
+//            stmt.setString(3, book.getGenre());
+//            stmt.setInt(4, book.getAuthorId());
+//            stmt.executeUpdate();
+//
+//            // Отримання згенерованого ID
+//            ResultSet generatedKeys = stmt.getGeneratedKeys();
+//            if (generatedKeys.next()) {
+//                int id = generatedKeys.getInt(1);
+//                book.setId(id); // Заповнюємо ID у об'єкті
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return book;
+//    }
+
     @Override
-    public boolean save(Order order) {
+    public Order save(Order order) {
         String sql = "INSERT INTO Orders (ORDER_NAME, PRICE) VALUES (?, ?)";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);) {
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
             statement.setString(1, order.getOrderName());
             statement.setInt(2, order.getPrice());
 
             int rowsAffected = statement.executeUpdate();
-
             System.out.println("Rows inserted: " + rowsAffected);
-            return true;
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long orderId = generatedKeys.getLong(1);
+                order.setOrderId(orderId);
+            }
+            return order;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
